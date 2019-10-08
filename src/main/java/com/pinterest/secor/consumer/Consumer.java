@@ -155,6 +155,10 @@ public class Consumer extends Thread {
                     break;
                 }
 
+                if (nMessages % 1000 == 0) {
+                    LOG.info("nMessages: " + nMessages + " lastChecked: " + lastChecked);
+                }
+
                 long now = System.currentTimeMillis();
                 if (mDeterministicUploadPolicyTracker != null ||
                     nMessages++ % checkMessagesPerSecond == 0 ||
@@ -177,6 +181,7 @@ public class Consumer extends Thread {
 
     protected void checkUploadPolicy(boolean forceUpload) {
         try {
+            LOG.info("checkUploadPolicy invoked");
             mUploader.applyPolicy(forceUpload);
         } catch (Exception e) {
             throw new RuntimeException("Failed to apply upload policy", e);

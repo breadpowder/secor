@@ -18,7 +18,7 @@
  */
 package com.pinterest.secor.main;
 
-import com.pinterest.secor.common.OstrichAdminService;
+//import com.pinterest.secor.common.OstrichAdminService;
 import com.pinterest.secor.common.SecorConfig;
 import com.pinterest.secor.consumer.Consumer;
 import com.pinterest.secor.tools.LogFileDeleter;
@@ -54,8 +54,8 @@ public class ConsumerMain {
         }
         try {
             SecorConfig config = SecorConfig.load();
-            OstrichAdminService ostrichService = new OstrichAdminService(config.getOstrichPort());
-            ostrichService.start();
+//            OstrichAdminService ostrichService = new OstrichAdminService(config.getOstrichPort());
+//            ostrichService.start();
             FileUtil.configure(config);
 
             LogFileDeleter logFileDeleter = new LogFileDeleter(config);

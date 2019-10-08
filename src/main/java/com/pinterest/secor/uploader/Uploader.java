@@ -19,14 +19,7 @@
 package com.pinterest.secor.uploader;
 
 import com.google.common.base.Joiner;
-import com.pinterest.secor.common.DeterministicUploadPolicyTracker;
-import com.pinterest.secor.common.FileRegistry;
-import com.pinterest.secor.common.LogFilePath;
-import com.pinterest.secor.common.OffsetTracker;
-import com.pinterest.secor.common.SecorConfig;
-import com.pinterest.secor.common.SecorConstants;
-import com.pinterest.secor.common.TopicPartition;
-import com.pinterest.secor.common.ZookeeperConnector;
+import com.pinterest.secor.common.*;
 import com.pinterest.secor.io.FileReader;
 import com.pinterest.secor.io.FileWriter;
 import com.pinterest.secor.io.KeyValue;
@@ -265,7 +258,7 @@ public class Uploader {
         } else {
             final long size = mFileRegistry.getSize(topicPartition);
             final long modificationAgeSec = mFileRegistry.getModificationAgeSec(topicPartition);
-            LOG.debug("size: " + size + " modificationAge: " + modificationAgeSec);
+            LOG.info("topic: " + topicPartition.getTopic() + " partition: " + topicPartition.getPartition() + " size: " + size + " modificationAge: " + modificationAgeSec);
             shouldUpload = forceUpload ||
                            size >= mConfig.getMaxFileSizeBytes() ||
                            modificationAgeSec >= mConfig.getMaxFileAgeSeconds() ||
@@ -277,10 +270,10 @@ public class Uploader {
                     newOffsetCount);
             long lastSeenOffset = mOffsetTracker.getLastSeenOffset(topicPartition);
             if (oldOffsetCount == newOffsetCount) {
-                LOG.debug("Uploading for: " + topicPartition);
+                LOG.info("Uploading for: " + topicPartition);
                 uploadFiles(topicPartition);
             } else if (newOffsetCount > lastSeenOffset) {  // && oldOffset < newOffset
-                LOG.debug("last seen offset {} is lower than committed offset count {}. Deleting files in topic {} partition {}",
+                LOG.info("last seen offset {} is lower than committed offset count {}. Deleting files in topic {} partition {}",
                         lastSeenOffset, newOffsetCount,topicPartition.getTopic(), topicPartition.getPartition());
                 // There was a rebalancing event and someone committed an offset beyond that of the
                 // current message.  We need to delete the local file.
@@ -289,7 +282,7 @@ public class Uploader {
                     mDeterministicUploadPolicyTracker.reset(topicPartition);
                 }
             } else {  // oldOffsetCount < newOffsetCount <= lastSeenOffset
-                LOG.debug("previous committed offset count {} is lower than committed offset {} is lower than or equal to last seen offset {}. " +
+                LOG.info("previous committed offset count {} is lower than committed offset {} is lower than or equal to last seen offset {}. " +
                                 "Trimming files in topic {} partition {}",
                         oldOffsetCount, newOffsetCount, lastSeenOffset, topicPartition.getTopic(), topicPartition.getPartition());
                 // There was a rebalancing event and someone committed an offset lower than that
