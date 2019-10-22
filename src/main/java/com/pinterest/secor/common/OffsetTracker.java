@@ -52,15 +52,15 @@ public class OffsetTracker {
     public long setLastSeenOffset(TopicPartition topicPartition, long offset) {
         long lastSeenOffset = getLastSeenOffset(topicPartition);
         mLastSeenOffset.put(topicPartition, offset);
-        if (lastSeenOffset + 1 != offset) {
-            if (lastSeenOffset >= 0) {
-                LOG.warn("offset for topic {} partition {} changed from {} to {}",
-                        topicPartition.getTopic(),topicPartition.getPartition(),lastSeenOffset, offset);
-            } else {
+        if (offset < lastSeenOffset + 1) {
+            LOG.warn("offset for topic {} partition {} goes back from {} to {}",
+                    topicPartition.getTopic(), topicPartition.getPartition(), lastSeenOffset, offset);
+
+        } else if (lastSeenOffset < 0) {
                 LOG.info("starting to consume topic {} partition {} from offset {}",
                         topicPartition.getTopic(),topicPartition.getPartition(),offset);
             }
-        }
+
         if (mFirstSeendOffset.get(topicPartition) == null) {
             mFirstSeendOffset.put(topicPartition, offset);
         }
@@ -94,4 +94,13 @@ public class OffsetTracker {
         mCommittedOffsetCount.put(topicPartition, count);
         return trueCommittedOffsetCount;
     }
+
+
+    public void reset(TopicPartition topicPartition) {
+        mFirstSeendOffset.remove(topicPartition);
+        mLastSeenOffset.remove(topicPartition);
+        mCommittedOffsetCount.remove(topicPartition);
+    }
+
+
 }
